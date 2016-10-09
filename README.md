@@ -1,13 +1,13 @@
-# hacktoberfest-slackbot
-> A Slack bot providing hacktoberfest activity
+# hacktoberfest-slack
+> A Slack command providing Hacktoberfest information
 
-Borrowing the idea from [jenkoian/hacktoberfest-checker](https://github.com/jenkoian/hacktoberfest-checker), this project aims to provide similar functionality as a Slack bot.
+Borrowing the idea from [jenkoian/hacktoberfest-checker](https://github.com/jenkoian/hacktoberfest-checker), this project aims to provide similar functionality as a Slack command.
 
 ## Config
 
-The bot requires a couple API keys. See `config.example.js` for details.
+Use `config.example.js` as a template.
 
-* [Create Slack integration](https://campuspro.slack.com/apps/new/A0F7YS25R-bots)
+* [Create Slack command](https://campuspro.slack.com/apps/A0F82E8CA-slash-commands)
 * [Create GitHub API token](https://github.com/blog/1509-personal-api-tokens)
 
 ## Run

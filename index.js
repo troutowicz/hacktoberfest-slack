@@ -1,13 +1,13 @@
-import Botkit from 'botkit';
+import bodyParser from 'body-parser';
+import express from 'express';
+import morgan from 'morgan';
 import Github from 'github';
 
 import config from './config.js';
+import getPullRequests from './lib/getPullRequests.js';
 
-const controller = Botkit.slackbot({
-  debug: false,
-  stats_optout: true,
-});
-
+const app = express();
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const github = new Github({
   version: '3.0.0',
   debug: false,
@@ -16,52 +16,25 @@ const github = new Github({
   timeout: 5000,
   headers: {
     'user-agent': 'Hacktoberfest Checker'
-  }
+  },
 });
 
-function getPullRequests (username, cb) {
-  const options = {
-    q: '-label:invalid+created:2016-09-30T00:00:00-12:00..2016-10-31T23:59:59-12:00+type:pr+is:public+author:' + username
-  };
-  const octoberPrs = [];
-  let userImage;
+app.use(morgan('dev'));
 
-  github.search.issues(options, (err, res) => {
+app.get('/', (req, res) => {
+  res.send();
+});
+
+app.post('/', urlencodedParser, (req, res) => {
+  if (req.body.token !== config.slackToken) {
+    res.status(401);
+  }
+
+  const username = req.body.text;
+
+  getPullRequests(github, username, (err, octoberPrs, userImage) => {
     if (err) {
-      return cb(err);
-    }
-
-    Object.keys(res.items).forEach((key) => {
-      const event = res.items[key];
-      const repo = event.pull_request.html_url.substring(0, event.pull_request.html_url.search('/pull'));
-
-      if (!userImage) {
-        userImage = event.user.avatar_url;
-      }
-
-      const hacktoberFestLabels = Object.keys(event.labels).filter((key) => {
-        return event.labels[key].name.toLowerCase() === 'hacktoberfest';
-      });
-
-      octoberPrs.push({
-        repo_name: repo,
-        title: event.title,
-        url: event.html_url,
-        state: event.state,
-        hasHacktoberFestLabel: hacktoberFestLabels.length > 0
-      });
-    });
-
-    cb(null, octoberPrs, userImage);
-  });
-}
-
-controller.on('direct_mention', (bot, message) => {
-  const username = message.text;
-
-  getPullRequests(username, (err, octoberPrs, userImage) => {
-    if (err) {
-      return bot.reply(message, 'Hmm, spell that username right?');
+      return res.send('Hmm, spell that username right?');
     }
 
     const attachments = octoberPrs.map((pr) => {
@@ -84,20 +57,19 @@ controller.on('direct_mention', (bot, message) => {
       };
     });
 
-    bot.reply(message, {
+    res.send({
       text: username + ' has created ' + octoberPrs.length + '/4 pull requests.',
       attachments: attachments,
     });
   });
 });
 
-// Start bot
+app.listen(config.port, () => {
+  github.authenticate({
+    type: 'oauth',
+    token: config.githubApiKey,
+  });
 
-github.authenticate({
-  type: 'oauth',
-  token: config.githubApiKey,
+  console.info(`Listening on port ${config.port}`);
 });
 
-controller.spawn({
-  token: config.slackBotApiKey,
-}).startRTM();
