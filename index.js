@@ -40,10 +40,6 @@ app.get('/', (req, res) => {
 });
 
 app.post('/', urlencodedParser, (req, res) => {
-  if (req.body.token !== config.slackToken) {
-    res.status(401);
-  }
-
   const [ action, username, verbose ] = req.body.text.split(' ');
 
   switch (action) {
