@@ -27,7 +27,7 @@ function help () {
   return {
     text: 'How to use `/hacktoberfest`',
     attachments:[{
-      text: 'To check progress, use `/hacktoberfest progress <username> [verbose]`.\nTo discover open issues, use `/hacktoberfest issues`.',
+      text: 'To check user progress, use `/hacktoberfest user <username> [verbose]`.\nTo discover open issues, use `/hacktoberfest issues`.',
       mrkdwn_in: [ 'text' ]
     }]
   }
@@ -50,7 +50,7 @@ app.post('/', urlencodedParser, (req, res) => {
     case 'help':
       res.send(help());
       break;
-    case 'progress':
+    case 'user':
       getPullRequests(github, username, (err, octoberPrs) => {
         if (err) {
           return res.send('Hmm, spell that username right?');
