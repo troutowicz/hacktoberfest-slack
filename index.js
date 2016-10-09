@@ -59,7 +59,7 @@ app.post('/', urlencodedParser, (req, res) => {
         const message = {};
 
         if (octoberPrs.length >= PR_GOAL) {
-          message.text = `${username} reached the ${PR_GOAL} PR goal on ${moment(octoberPrs[3].createdAt).format('MMMM Do')}! (<${octoberPrs[3].url}|PR>)`;
+          message.text = `${username} reached the ${PR_GOAL} PR goal on ${moment(octoberPrs[0].createdAt).format('MMMM Do')}! (<${octoberPrs[0].url}|PR>)`;
         } else {
           message.text = `${username} has created ${octoberPrs.length} PRs. ${PR_GOAL - octoberPrs.length} more to go!`;
         }
