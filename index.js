@@ -36,7 +36,7 @@ function help () {
 app.use(morgan('dev'));
 
 app.get('/', (req, res) => {
-  res.send();
+  return res.send();
 });
 
 app.post('/', urlencodedParser, (req, res) => {
@@ -48,9 +48,13 @@ app.post('/', urlencodedParser, (req, res) => {
 
   switch (action) {
     case 'help':
-      res.send(help());
+      return res.send(help());
       break;
     case 'user':
+      if (!username) {
+        return res.send(help());
+      }
+
       getPullRequests(github, username, (err, octoberPrs) => {
         if (err) {
           return res.send('Hmm, spell that username right?');
@@ -88,7 +92,7 @@ app.post('/', urlencodedParser, (req, res) => {
           });
         }
 
-        res.send(message);
+        return res.send(message);
       });
       break;
     case 'issues':
@@ -111,11 +115,11 @@ app.post('/', urlencodedParser, (req, res) => {
           };
         });
 
-        res.send(message);
+        return res.send(message);
       });
       break;
     default:
-      res.send(help());
+      return res.send(help());
   }
 });
 
