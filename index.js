@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import Github from 'github';
 
 import config from './config.js';
+import getIssues from './lib/getIssues.js';
 import getPullRequests from './lib/getPullRequests.js';
 
 const PR_GOAL = 4;
@@ -26,7 +27,7 @@ function help () {
   return {
     text: 'How to use `/hacktoberfest`',
     attachments:[{
-      text: 'To check progress, use `/hacktoberfest progress <username> [verbose]`.\nTo discover open issues, use `/hacktoberfest suggest`.',
+      text: 'To check progress, use `/hacktoberfest progress <username> [verbose]`.\nTo discover open issues, use `/hacktoberfest issues`.',
       mrkdwn_in: [ 'text' ]
     }]
   }
@@ -50,7 +51,7 @@ app.post('/', urlencodedParser, (req, res) => {
       res.send(help());
       break;
     case 'progress':
-      getPullRequests(github, username, (err, octoberPrs, userImage) => {
+      getPullRequests(github, username, (err, octoberPrs) => {
         if (err) {
           return res.send('Hmm, spell that username right?');
         }
@@ -86,6 +87,29 @@ app.post('/', urlencodedParser, (req, res) => {
             };
           });
         }
+
+        res.send(message);
+      });
+      break;
+    case 'issues':
+      getIssues(github, (err, octoberOpenIssues, totalIssues) => {
+        if (err) {
+          return res.send('Hmm, something went wrong.');
+        }
+
+        const message = {
+          text: `Here are ${octoberOpenIssues.length} out of ${totalIssues} open issues!`,
+        };
+
+        message.attachments = octoberOpenIssues.map((issue) => {
+          return {
+            color: '#36a64f',
+            author_name: issue.repoUrl.split('https://github.com/')[1],
+            author_link: issue.repoUrl,
+            title: issue.title,
+            title_link: issue.url,
+          };
+        });
 
         res.send(message);
       });
