@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import moment from 'moment';
-import morgan from 'morgan';
 import Github from 'github';
 
 import config from './config.js';
@@ -32,8 +31,6 @@ function help () {
     }]
   }
 }
-
-app.use(morgan('dev'));
 
 app.get('/', (req, res) => {
   return res.send();
