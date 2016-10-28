@@ -60,7 +60,7 @@ app.post('/', urlencodedParser, (req, res) => {
         } else {
           message.text = `${username} has created ${octoberPrs.length} PRs. ${PR_GOAL - octoberPrs.length} more to go!`;
         }
-
+        message.response_type = 'in_channel';
         if (verbose) {
           message.attachments = octoberPrs.map((pr) => {
             return {
